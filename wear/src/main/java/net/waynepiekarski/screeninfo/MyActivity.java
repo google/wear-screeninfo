@@ -16,12 +16,14 @@ public class MyActivity extends Activity implements View.OnClickListener {
     private TextView mTextView;
     private View mOverlayView;
 
+    // Devices with no insets may or may not run our callback, so have a default ready here
+    private String mWindowInsets = "No WindowInsets Returned\nDevice is square with no insets";
     private String mDPI = "n/a";
-    private String mWindowInsets = "No WindowInsets Returned";
     private String mDevice = "n/a";
     private String mBuild = "n/a";
     private String mSerial = "n/a";
-    private final int mNumPages = 5;
+    private String mAppInfo = "n/a";
+    private final int mNumPages = 6;
     private int mTextItem = 0;
 
     static String convertDpiToString (DisplayMetrics metrics) {
@@ -47,6 +49,7 @@ public class MyActivity extends Activity implements View.OnClickListener {
             case 2: mTextView.setText(mDevice); break;
             case 3: mTextView.setText(mBuild); break;
             case 4: mTextView.setText(mSerial); break;
+            case 5: mTextView.setText(mAppInfo); break;
             default: Logging.fatal("Unknown item " + mTextItem);
         }
     }
@@ -92,6 +95,15 @@ public class MyActivity extends Activity implements View.OnClickListener {
                 + "Serial=" + android.os.Build.SERIAL;
         Logging.debug ("Serial string is:\n" + mSerial);
 
+        mAppInfo = ""
+                + "Pkg=" + BuildConfig.PACKAGE_NAME + "\n"
+                + "Type=" + BuildConfig.BUILD_TYPE + "\n"
+                + "VName=" + BuildConfig.VERSION_NAME + "\n"
+                + "VCode=" + BuildConfig.VERSION_CODE + "\n"
+                + "Flavor=" + BuildConfig.FLAVOR + "\n"
+                + "Debug=" + BuildConfig.DEBUG;
+        Logging.debug ("Application info string is:\n" + mAppInfo);
+
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
@@ -106,10 +118,16 @@ public class MyActivity extends Activity implements View.OnClickListener {
                 DisplayMetrics metrics = new DisplayMetrics();
                 getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
+                float inchX = metrics.widthPixels/metrics.xdpi;
+                float inchY = metrics.heightPixels/metrics.ydpi;
+
                 mDPI = "Display=" + metrics.widthPixels + "x" + metrics.heightPixels + "\n"
                         + "density=" + metrics.density + "\n"
                         + "densityDpi=" + metrics.densityDpi + "(" + convertDpiToString(metrics) + ")\n"
-                        + "scaledDensity=" + metrics.scaledDensity;
+                        + "scaledDensity=" + metrics.scaledDensity + "\n"
+                        + "xdpi=" + metrics.xdpi + "\n"
+                        + "ydpi=" + metrics.ydpi + "\n"
+                        + "inches=" + String.format("%.2f", inchX) + "\"x" + String.format("%.2f", inchY) + "\"";
                 Logging.debug("DPI string is:\n" + mDPI);
                 refreshView();
             }
