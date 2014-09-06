@@ -4,10 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.wearable.view.WatchViewStub;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.WindowInsets;
 
 public class OverlayView extends View {
 
@@ -19,15 +17,10 @@ public class OverlayView extends View {
         mPaintLines = new Paint ();
         mPaintLines.setColor(Color.RED);
         mPaintLines.setStyle(Paint.Style.STROKE);
+    }
 
-        setOnApplyWindowInsetsListener(new WatchViewStub.OnApplyWindowInsetsListener() {
-            @Override
-            public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
-                OverlayView.this.onApplyWindowInsets(windowInsets);
-                mRound = windowInsets.isRound();
-                return windowInsets;
-            }
-        });
+    public void setRound (boolean in) {
+        mRound = in;
     }
 
     @Override

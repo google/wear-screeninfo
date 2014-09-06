@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowManager;
+import android.widget.TextView;
 
 
 /**
@@ -17,7 +20,7 @@ import android.view.View;
  *
  * @see SystemUiHider
  */
-public class FullscreenActivity extends Activity {
+public class FullscreenActivity extends Activity implements View.OnClickListener {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -45,6 +48,15 @@ public class FullscreenActivity extends Activity {
      * The instance of the {@link SystemUiHider} for this activity.
      */
     private SystemUiHider mSystemUiHider;
+
+
+    /**
+     * Views necessary for the screen info app
+     */
+    private TextView mTextView;
+    private OverlayView mOverlayView;
+    MyOutputManager mMyOutputManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,10 +121,37 @@ public class FullscreenActivity extends Activity {
             }
         });
 
+
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+
+
+        /* Implement the interface for my app here */
+        mMyOutputManager = new MyOutputManager(this);
+        mTextView = (TextView)findViewById(R.id.text);
+        mTextView.setOnClickListener(this);
+        mOverlayView = (OverlayView)findViewById(R.id.overlay);
+        mOverlayView.setOnClickListener(this);
+        mMyOutputManager.setTextView(mTextView);
+
+        // Prevent display from sleeping
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // Allow the controls to advance to the next item
+        View dummyButton = (View)findViewById(R.id.dummy_button);
+        dummyButton.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View view) {
+               mMyOutputManager.nextView();
+           }
+        });
+    }
+
+    @Override
+    public void onClick (View v) {
+        mMyOutputManager.nextView();
     }
 
     @Override
