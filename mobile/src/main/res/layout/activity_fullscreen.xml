@@ -22,6 +22,18 @@
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"/>
 
+        <TextView
+            android:id="@+id/fixed_box"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20mm box"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:width="20mm"
+            android:height="20mm"
+            android:background="#2000ff00"
+            android:gravity="center"/>
+
         <ScrollView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

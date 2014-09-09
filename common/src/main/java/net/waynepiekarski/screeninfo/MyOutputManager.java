@@ -74,11 +74,14 @@ public class MyOutputManager {
     private String mBuild = "n/a";
     private String mSerial = "n/a";
     private String mAppInfo = "n/a";
-    private final int mNumPages = 6;
+    private String mFixedBox = "";
+    private final int mNumPages = 7;
     private int mTextItem = 0;
+    TextView mFixedBoxView;
 
     public void setTextView (TextView in) {
         mTextView = in;
+        mFixedBoxView = (TextView)mActivity.findViewById(R.id.fixed_box);
         refreshView();
     }
 
@@ -115,12 +118,13 @@ public class MyOutputManager {
         if (mTextView == null) return; // Prevent crashes if window inset is called before layout inflate
 
         switch (mTextItem) {
-            case 0: mTextView.setText(mDPI); break;
+            case 0: mTextView.setText(mDPI); mFixedBoxView.setVisibility(View.INVISIBLE); break;
             case 1: mTextView.setText(mWindowInsets); break;
             case 2: mTextView.setText(mDevice); break;
             case 3: mTextView.setText(mBuild); break;
             case 4: mTextView.setText(mSerial); break;
             case 5: mTextView.setText(mAppInfo); break;
+            case 6: mTextView.setText(mFixedBox); mFixedBoxView.setVisibility(View.VISIBLE); break;
             default: Logging.fatal("Unknown item " + mTextItem);
         }
     }
