@@ -24,6 +24,7 @@ public class MyActivity extends Activity implements View.OnClickListener {
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
+                Logging.debug("onLayoutInflated for WatchViewStub");
                 mTextView = (TextView)stub.findViewById(R.id.text);
                 mTextView.setOnClickListener(MyActivity.this);
                 mOverlayView = (OverlayView)stub.findViewById(R.id.overlay);
@@ -38,9 +39,13 @@ public class MyActivity extends Activity implements View.OnClickListener {
         stub.setOnApplyWindowInsetsListener(new WatchViewStub.OnApplyWindowInsetsListener() {
            @Override
            public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+               Logging.debug("onApplyWindowInsets for WatchViewStub, round=" + windowInsets.isRound());
                stub.onApplyWindowInsets(windowInsets);
                mMyOutputManager.handleWindowInsets(windowInsets);
-               mOverlayView.setRound(windowInsets.isRound());
+               // WatchViewStub seems to call onApplyWindowInsets() multiple times before
+               // the layout is inflated, so make sure we check the reference is valid.
+               if (mOverlayView != null)
+                   mOverlayView.setRound(windowInsets.isRound());
                return windowInsets;
            }
         });

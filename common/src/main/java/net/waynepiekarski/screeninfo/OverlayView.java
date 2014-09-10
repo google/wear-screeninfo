@@ -21,6 +21,7 @@ public class OverlayView extends View {
 
     public void setRound (boolean in) {
         mRound = in;
+        invalidate();
     }
 
     @Override
