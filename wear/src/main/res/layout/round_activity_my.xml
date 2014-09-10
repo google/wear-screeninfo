@@ -14,17 +14,36 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"/>
 
-    <TextView
-        android:id="@+id/fixed_box"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="20mm box"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:width="20mm"
-        android:height="20mm"
-        android:background="#2000ff00"
-        android:gravity="center"/>
+    <RelativeLayout
+        android:id="@+id/fixed_boxes"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/box_20mm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="20mm"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:width="20mm"
+            android:height="20mm"
+            android:background="#2000ff00"
+            android:gravity="top"/>
+
+        <TextView
+            android:id="@+id/box_1in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1inch"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:width="1in"
+            android:height="1in"
+            android:background="#200000ff"
+            android:gravity="bottom"/>
+
+    </RelativeLayout>
 
     <android.support.wearable.view.BoxInsetLayout
         xmlns:android="http://schemas.android.com/apk/res/android"

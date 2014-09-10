@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowInsets;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MyOutputManager {
 
     private TextView mTextView;
     private Activity mActivity;
+    private TextView mFixedBox20mm;
+    private TextView mFixedBox1in;
 
     public MyOutputManager(Activity in) {
         mActivity = in;
@@ -77,11 +80,16 @@ public class MyOutputManager {
     private String mFixedBox = "";
     private final int mNumPages = 7;
     private int mTextItem = 0;
-    TextView mFixedBoxView;
+    RelativeLayout mFixedBoxesView;
 
     public void setTextView (TextView in) {
         mTextView = in;
-        mFixedBoxView = (TextView)mActivity.findViewById(R.id.fixed_box);
+        // Grab a reference to the fixed boxes and calculate their dimensions since
+        // we know the layout is now inflated.
+        mFixedBoxesView = (RelativeLayout)mActivity.findViewById(R.id.fixed_boxes);
+        mFixedBox20mm = (TextView)mActivity.findViewById(R.id.box_20mm);
+        mFixedBox1in = (TextView)mActivity.findViewById(R.id.box_1in);
+
         refreshView();
     }
 
@@ -114,17 +122,31 @@ public class MyOutputManager {
         }
     }
 
+    public void visibleFixedBox(boolean active) {
+        if (active)
+            mFixedBoxesView.setVisibility(View.VISIBLE);
+        else
+            mFixedBoxesView.setVisibility(View.INVISIBLE);
+
+        if (active) {
+            mFixedBox = ""
+                    + "20mm=" + mFixedBox20mm.getWidth() + "x" + mFixedBox20mm.getHeight() + "\n"
+                    + "1in=" + mFixedBox1in.getWidth() + "x" + mFixedBox1in.getHeight();
+            Logging.debug("Fixed box string is:\n" + mFixedBox);
+        }
+    }
+
     public void refreshView() {
         if (mTextView == null) return; // Prevent crashes if window inset is called before layout inflate
 
         switch (mTextItem) {
-            case 0: mTextView.setText(mDPI); mFixedBoxView.setVisibility(View.INVISIBLE); break;
+            case 0: visibleFixedBox(false); mTextView.setText(mDPI); break;
             case 1: mTextView.setText(mWindowInsets); break;
             case 2: mTextView.setText(mDevice); break;
             case 3: mTextView.setText(mBuild); break;
             case 4: mTextView.setText(mSerial); break;
             case 5: mTextView.setText(mAppInfo); break;
-            case 6: mTextView.setText(mFixedBox); mFixedBoxView.setVisibility(View.VISIBLE); break;
+            case 6: visibleFixedBox(true); mTextView.setText(mFixedBox); break;
             default: Logging.fatal("Unknown item " + mTextItem);
         }
     }
