@@ -1,6 +1,10 @@
 package net.waynepiekarski.screeninfo;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowInsets;
@@ -67,6 +71,31 @@ public class MyOutputManager {
                 + "ydpi=" + metrics.ydpi + "\n"
                 + "inches=" + String.format("%.2f", inchX) + "\"x" + String.format("%.2f", inchY) + "\"";
         Logging.debug("DPI string is:\n" + mDPI);
+
+        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+        WifiManager wifiManager = (WifiManager)mActivity.getSystemService(Context.WIFI_SERVICE);
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        String btAddress = btAdapter.getAddress();
+        String wifiAddress = wifiInfo.getMacAddress();
+        if (wifiAddress == null)
+            wifiAddress = "No Wifi";
+
+        // Reconstitute the pairing device name from the model and the last 4 digits of the bluetooth MAC
+        String wearName;
+        if (btAddress != null) {
+            wearName = android.os.Build.MODEL;
+            String[] tokens = btAddress.split(":");
+            wearName += " " + tokens[4] + tokens[5];
+            wearName = wearName.toUpperCase();
+        } else {
+            wearName = "No Bluetooth";
+        }
+
+        mAddresses = "Pair=" + wearName + "\n"
+                + "BT=" + btAdapter.getAddress() + "\n"
+                + "WiFi=" + wifiAddress;
+        Logging.debug("Address string is:\n" + mAddresses);
+
         refreshView();
     }
 
@@ -77,8 +106,8 @@ public class MyOutputManager {
     private String mBuild = "n/a";
     private String mSerial = "n/a";
     private String mAppInfo = "n/a";
+    private String mAddresses = "n/a";
     private String mFixedBox = "";
-    private final int mNumPages = 7;
     private int mTextItem = 0;
     RelativeLayout mFixedBoxesView;
 
@@ -136,17 +165,21 @@ public class MyOutputManager {
         }
     }
 
+    // Change mNumPages whenever you adjust the switch() statement below
+    private final int mNumPages = 8;
+
     public void refreshView() {
         if (mTextView == null) return; // Prevent crashes if window inset is called before layout inflate
 
         switch (mTextItem) {
             case 0: visibleFixedBox(false); mTextView.setText(mDPI); break;
             case 1: mTextView.setText(mWindowInsets); break;
-            case 2: mTextView.setText(mDevice); break;
-            case 3: mTextView.setText(mBuild); break;
-            case 4: mTextView.setText(mSerial); break;
-            case 5: mTextView.setText(mAppInfo); break;
-            case 6: visibleFixedBox(true); mTextView.setText(mFixedBox); break;
+            case 2: mTextView.setText(mAddresses); break;
+            case 3: mTextView.setText(mDevice); break;
+            case 4: mTextView.setText(mBuild); break;
+            case 5: mTextView.setText(mSerial); break;
+            case 6: mTextView.setText(mAppInfo); break;
+            case 7: visibleFixedBox(true); mTextView.setText(mFixedBox); break;
             default: Logging.fatal("Unknown item " + mTextItem);
         }
     }

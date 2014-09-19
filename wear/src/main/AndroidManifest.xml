@@ -3,6 +3,8 @@
     package="net.waynepiekarski.screeninfo" >
 
     <uses-feature android:name="android.hardware.type.watch" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
