@@ -45,10 +45,14 @@
 
     </RelativeLayout>
 
+    <!-- fillViewport is necessary so the TextView gets all click events. If you do
+         not add this, then there is a region between TextView -> ScrollView where
+         no events are captured. This is the only way I could get this to work -->
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fadeScrollbars="false"
+        android:fillViewport="true"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true">
 

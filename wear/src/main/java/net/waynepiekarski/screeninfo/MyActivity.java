@@ -3,9 +3,11 @@ package net.waynepiekarski.screeninfo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.wearable.view.WatchViewStub;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MyActivity extends Activity implements View.OnClickListener {
@@ -26,10 +28,11 @@ public class MyActivity extends Activity implements View.OnClickListener {
             public void onLayoutInflated(WatchViewStub stub) {
                 Logging.debug("onLayoutInflated for WatchViewStub");
                 mTextView = (TextView)stub.findViewById(R.id.text);
-                mTextView.setOnClickListener(MyActivity.this);
                 mOverlayView = (OverlayView)stub.findViewById(R.id.overlay);
-                mOverlayView.setOnClickListener(MyActivity.this);
                 mMyOutputManager.setTextView(mTextView);
+
+                // Recursive add a listener for every View in the hierarchy, this is the only way to get all clicks
+                ListenerHelper.recursiveSetOnClickListener(stub, MyActivity.this);
 
                 // Prevent display from sleeping
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

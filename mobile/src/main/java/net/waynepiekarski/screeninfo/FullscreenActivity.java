@@ -9,8 +9,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -54,7 +56,6 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
      * Views necessary for the screen info app
      */
     private TextView mTextView;
-    private OverlayView mOverlayView;
     MyOutputManager mMyOutputManager;
 
 
@@ -65,7 +66,7 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
         setContentView(R.layout.activity_fullscreen);
 
         final View controlsView = findViewById(R.id.fullscreen_content_controls);
-        final View contentView = findViewById(R.id.fullscreen_content);
+        final ViewGroup contentView = (ViewGroup)findViewById(R.id.fullscreen_content);
 
         // Set up an instance of SystemUiHider to control the system UI for
         // this activity.
@@ -109,32 +110,14 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
                     }
                 });
 
-        // Set up the user interaction to manually show or hide the system UI.
-        contentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (TOGGLE_ON_CLICK) {
-                    mSystemUiHider.toggle();
-                } else {
-                    mSystemUiHider.show();
-                }
-            }
-        });
-
-
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-        findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
-
 
         /* Implement the interface for my app here */
         mMyOutputManager = new MyOutputManager(this);
         mTextView = (TextView)findViewById(R.id.text);
-        mTextView.setOnClickListener(this);
-        mOverlayView = (OverlayView)findViewById(R.id.overlay);
-        mOverlayView.setOnClickListener(this);
         mMyOutputManager.setTextView(mTextView);
+
+        // Recursive add a listener for every View in the hierarchy, this is the only way to get all clicks
+        ListenerHelper.recursiveSetOnClickListener(contentView, FullscreenActivity.this);
 
         // Prevent display from sleeping
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -151,7 +134,16 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
 
     @Override
     public void onClick (View v) {
+        // Advance to the next view
         mMyOutputManager.nextView();
+
+        /**
+         * Touch listener to use for in-layout UI controls to delay hiding the
+         * system UI. This is to prevent the jarring behavior of controls going away
+         * while interacting with activity UI.
+         */
+        if (AUTO_HIDE)
+            delayedHide(AUTO_HIDE_DELAY_MILLIS);
     }
 
     @Override
@@ -164,21 +156,6 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
         delayedHide(100);
     }
 
-
-    /**
-     * Touch listener to use for in-layout UI controls to delay hiding the
-     * system UI. This is to prevent the jarring behavior of controls going away
-     * while interacting with activity UI.
-     */
-    View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
 
     Handler mHideHandler = new Handler();
     Runnable mHideRunnable = new Runnable() {
