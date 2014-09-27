@@ -28,28 +28,43 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/box_20mm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="20mm"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"
-                android:width="20mm"
-                android:height="20mm"
-                android:background="#2000ff00"
-                android:gravity="top"/>
-
-            <TextView
                 android:id="@+id/box_1in"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1inch"
+                android:text="1\ni\nn\nc\nh"
                 android:layout_centerVertical="true"
                 android:layout_centerHorizontal="true"
                 android:width="1in"
                 android:height="1in"
-                android:background="#200000ff"
-                android:gravity="bottom"/>
+                android:textColor="#0000ff"
+                android:background="#80000080"
+                android:gravity="center_vertical|left"/>
+
+            <TextView
+                android:id="@+id/box_20mm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2\n0\nm\nm"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:width="20mm"
+                android:height="20mm"
+                android:textColor="#00ff00"
+                android:background="#80008000"
+                android:gravity="center_vertical|right"/>
+
+            <TextView
+                android:id="@+id/box_100dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100dp"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:width="100dp"
+                android:height="100dp"
+                android:textColor="#ff0000"
+                android:background="#80800000"
+                android:gravity="center_horizontal|bottom"/>
 
         </RelativeLayout>
 

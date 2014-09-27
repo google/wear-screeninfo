@@ -17,6 +17,7 @@ public class MyOutputManager {
     private Activity mActivity;
     private TextView mFixedBox20mm;
     private TextView mFixedBox1in;
+    private TextView mFixedBox100dp;
 
     public MyOutputManager(Activity in) {
         mActivity = in;
@@ -118,6 +119,7 @@ public class MyOutputManager {
         mFixedBoxesView = (RelativeLayout)mActivity.findViewById(R.id.fixed_boxes);
         mFixedBox20mm = (TextView)mActivity.findViewById(R.id.box_20mm);
         mFixedBox1in = (TextView)mActivity.findViewById(R.id.box_1in);
+        mFixedBox100dp = (TextView)mActivity.findViewById(R.id.box_100dp);
 
         refreshView();
     }
@@ -159,8 +161,9 @@ public class MyOutputManager {
 
         if (active) {
             mFixedBox = ""
+                    + "1in=" + mFixedBox1in.getWidth() + "x" + mFixedBox1in.getHeight() + "\n"
                     + "20mm=" + mFixedBox20mm.getWidth() + "x" + mFixedBox20mm.getHeight() + "\n"
-                    + "1in=" + mFixedBox1in.getWidth() + "x" + mFixedBox1in.getHeight();
+                    + "100dp=" + mFixedBox100dp.getWidth() + "x" + mFixedBox100dp.getHeight();
             Logging.debug("Fixed box string is:\n" + mFixedBox);
         }
     }
