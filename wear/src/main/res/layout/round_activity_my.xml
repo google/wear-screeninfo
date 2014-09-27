@@ -29,7 +29,7 @@
             android:width="20mm"
             android:height="20mm"
             android:background="#2000ff00"
-            android:gravity="top"/>
+            android:gravity="center_vertical|right"/>
 
         <TextView
             android:id="@+id/box_1in"
@@ -41,7 +41,7 @@
             android:width="1in"
             android:height="1in"
             android:background="#200000ff"
-            android:gravity="bottom"/>
+            android:gravity="center_vertical|left"/>
 
     </RelativeLayout>
 
