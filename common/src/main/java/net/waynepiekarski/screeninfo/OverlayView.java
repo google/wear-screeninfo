@@ -37,7 +37,10 @@ public class OverlayView extends View {
             canvas.drawCircle(canvas.getWidth() / 2, canvas.getHeight() / 2, canvas.getWidth() / 2 - 2, mPaintLines);
         } else {
             // Draw a box outline for a rectangular display
-            canvas.drawRect(0, 0, canvas.getWidth(), canvas.getHeight(), mPaintLines);
+            canvas.drawLine(0, 0, canvas.getWidth()-1, 0, mPaintLines);
+            canvas.drawLine(canvas.getWidth()-1, 0, canvas.getWidth()-1, canvas.getHeight()-1, mPaintLines);
+            canvas.drawLine(canvas.getWidth()-1, canvas.getHeight()-1, 0, canvas.getHeight()-1, mPaintLines);
+            canvas.drawLine(0, canvas.getHeight()-1, 0, 0, mPaintLines);
         }
     }
 }
