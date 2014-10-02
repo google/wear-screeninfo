@@ -105,7 +105,7 @@ public class MyOutputManager {
         int dpY = (int)(realHeight / metrics.scaledDensity);
 
         mDPI = "Display=" + realWidth + "x" + realHeight + " (pixels)\n"
-                + "density=" + metrics.density + "\n"
+                + "density=" + metrics.density + " (x160=" + (int)(metrics.density * 160) + "dpi)\n"
                 + "densityDpi=" + metrics.densityDpi + "(" + convertDpiToString(metrics) + ")\n"
                 + "scaledDensity=" + metrics.scaledDensity + "\n"
                 + "xdpi=" + metrics.xdpi + "\n"
