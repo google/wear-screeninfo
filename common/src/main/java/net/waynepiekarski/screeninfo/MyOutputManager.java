@@ -5,11 +5,15 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.lang.reflect.Method;
 
 public class MyOutputManager {
 
@@ -58,13 +62,47 @@ public class MyOutputManager {
                 + "Debug=" + BuildConfig.DEBUG;
         Logging.debug ("Application info string is:\n" + mAppInfo);
 
+        // Calculate accurate values for the display dimensions
+        // From CorayThan @ http://stackoverflow.com/questions/14341041/how-to-get-real-screen-height-and-width/23861333#23861333
+        Display display = in.getWindowManager().getDefaultDisplay();
+        int realWidth;
+        int realHeight;
+
+        if (Build.VERSION.SDK_INT >= 17){
+            //new pleasant way to get real metrics
+            DisplayMetrics realMetrics = new DisplayMetrics();
+            display.getRealMetrics(realMetrics);
+            realWidth = realMetrics.widthPixels;
+            realHeight = realMetrics.heightPixels;
+
+        } else if (Build.VERSION.SDK_INT >= 14) {
+            //reflection for this weird in-between time
+            try {
+                Method mGetRawH = Display.class.getMethod("getRawHeight");
+                Method mGetRawW = Display.class.getMethod("getRawWidth");
+                realWidth = (Integer) mGetRawW.invoke(display);
+                realHeight = (Integer) mGetRawH.invoke(display);
+            } catch (Exception e) {
+                //this may not be 100% accurate, but it's all we've got
+                realWidth = display.getWidth();
+                realHeight = display.getHeight();
+                Logging.debug ("Could not use reflection to get the real display metrics");
+            }
+
+        } else {
+            //This should be close, as lower API devices should not have window navigation bars
+            realWidth = display.getWidth();
+            realHeight = display.getHeight();
+        }
+
+        // Query the metrics for other display information like DPI and density
         DisplayMetrics metrics = new DisplayMetrics();
         mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        float inchX = metrics.widthPixels/metrics.xdpi;
-        float inchY = metrics.heightPixels/metrics.ydpi;
+        float inchX = realWidth/metrics.xdpi;
+        float inchY = realHeight/metrics.ydpi;
 
-        mDPI = "Display=" + metrics.widthPixels + "x" + metrics.heightPixels + "\n"
+        mDPI = "Display=" + realWidth + "x" + realHeight + "\n"
                 + "density=" + metrics.density + "\n"
                 + "densityDpi=" + metrics.densityDpi + "(" + convertDpiToString(metrics) + ")\n"
                 + "scaledDensity=" + metrics.scaledDensity + "\n"
