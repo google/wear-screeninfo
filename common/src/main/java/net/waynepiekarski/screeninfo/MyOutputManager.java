@@ -101,14 +101,17 @@ public class MyOutputManager {
 
         float inchX = realWidth/metrics.xdpi;
         float inchY = realHeight/metrics.ydpi;
+        int dpX = (int)(realWidth / metrics.scaledDensity);
+        int dpY = (int)(realHeight / metrics.scaledDensity);
 
-        mDPI = "Display=" + realWidth + "x" + realHeight + "\n"
+        mDPI = "Display=" + realWidth + "x" + realHeight + " (pixels)\n"
                 + "density=" + metrics.density + "\n"
                 + "densityDpi=" + metrics.densityDpi + "(" + convertDpiToString(metrics) + ")\n"
                 + "scaledDensity=" + metrics.scaledDensity + "\n"
                 + "xdpi=" + metrics.xdpi + "\n"
                 + "ydpi=" + metrics.ydpi + "\n"
-                + "inches=" + String.format("%.2f", inchX) + "\"x" + String.format("%.2f", inchY) + "\"";
+                + "inches=" + String.format("%.2f", inchX) + "\"x" + String.format("%.2f", inchY) + "\"" + "\n"
+                + "dp=" + dpX + "x" + dpY;
         Logging.debug("DPI string is:\n" + mDPI);
 
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
