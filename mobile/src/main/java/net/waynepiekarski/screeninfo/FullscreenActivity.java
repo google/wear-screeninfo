@@ -130,6 +130,9 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
                mMyOutputManager.nextView();
            }
         });
+
+        // Permanently hide the action bar
+        getActionBar().hide();
     }
 
     @Override
