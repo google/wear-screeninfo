@@ -2,7 +2,10 @@ package net.waynepiekarski.screeninfo;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.wearable.view.DismissOverlayView;
 import android.support.wearable.view.WatchViewStub;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowInsets;
@@ -15,6 +18,8 @@ public class MyActivity extends Activity implements View.OnClickListener {
     private TextView mTextView;
     private OverlayView mOverlayView;
     private MyOutputManager mMyOutputManager;
+    private DismissOverlayView mDismissOverlayView;
+    private GestureDetectorCompat mGestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,7 @@ public class MyActivity extends Activity implements View.OnClickListener {
                 Logging.debug("onLayoutInflated for WatchViewStub");
                 mTextView = (TextView)stub.findViewById(R.id.text);
                 mOverlayView = (OverlayView)stub.findViewById(R.id.overlay);
+                mDismissOverlayView = (DismissOverlayView)stub.findViewById(R.id.dismiss);
                 mMyOutputManager.setTextView(mTextView);
 
                 // Recursive add a listener for every View in the hierarchy, this is the only way to get all clicks
@@ -36,6 +42,18 @@ public class MyActivity extends Activity implements View.OnClickListener {
 
                 // Prevent display from sleeping
                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                // Add a listener to handle closing the app on a long press to the activity
+                mDismissOverlayView.setIntroText("Long press to exit");
+                mDismissOverlayView.showIntroIfNecessary();
+                mGestureDetector = new GestureDetectorCompat(MyActivity.this, new GestureDetector.SimpleOnGestureListener(){
+                    @Override
+                    public void onLongPress (MotionEvent e){
+                        Logging.debug("Detected long press, showing exit overlay");
+                        mDismissOverlayView.show();
+                    }
+                });
+
             }
         });
 
@@ -57,5 +75,11 @@ public class MyActivity extends Activity implements View.OnClickListener {
     @Override
     public void onClick (View v) {
         mMyOutputManager.nextView();
+    }
+
+    // Deliver touch events from the activity to the long press detector
+    @Override
+    public boolean dispatchTouchEvent (MotionEvent e) {
+        return mGestureDetector.onTouchEvent(e) || super.dispatchTouchEvent(e);
     }
 }

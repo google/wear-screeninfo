@@ -82,4 +82,11 @@
 
     </ScrollView>
 
+    <!-- Must be the last view defined so it is on top of all the others -->
+    <android.support.wearable.view.DismissOverlayView
+        android:id="@+id/dismiss"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
 </RelativeLayout>
