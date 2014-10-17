@@ -114,17 +114,20 @@ public class MyOutputManager {
                 + "dp=" + dpX + "x" + dpY;
         Logging.debug("DPI string is:\n" + mDPI);
 
-        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
         WifiManager wifiManager = (WifiManager)mActivity.getSystemService(Context.WIFI_SERVICE);
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        String btAddress = btAdapter.getAddress();
         String wifiAddress = wifiInfo.getMacAddress();
         if (wifiAddress == null)
             wifiAddress = "No Wifi";
 
+        BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
+        String btAddress = "No Bluetooth";
+        if (btAdapter != null)
+          btAddress = btAdapter.getAddress();
+
         // Reconstitute the pairing device name from the model and the last 4 digits of the bluetooth MAC
         String wearName;
-        if (btAddress != null) {
+        if ((btAddress != null) && (!btAddress.equals("No Bluetooth"))) {
             wearName = android.os.Build.MODEL;
             String[] tokens = btAddress.split(":");
             wearName += " " + tokens[4] + tokens[5];
@@ -134,7 +137,7 @@ public class MyOutputManager {
         }
 
         mAddresses = "Pair=" + wearName + "\n"
-                + "BT=" + btAdapter.getAddress() + "\n"
+                + "BT=" + btAddress + "\n"
                 + "WiFi=" + wifiAddress;
         Logging.debug("Address string is:\n" + mAddresses);
 
