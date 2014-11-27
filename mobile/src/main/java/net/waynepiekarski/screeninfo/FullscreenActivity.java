@@ -4,16 +4,15 @@ import net.waynepiekarski.screeninfo.util.SystemUiHider;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.UiModeManager;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowInsets;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
@@ -123,14 +122,29 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
         // Prevent display from sleeping
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        // Allow the controls to advance to the next item
-        View dummyButton = (View)findViewById(R.id.dummy_button);
-        dummyButton.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
-               mMyOutputManager.nextView();
-           }
-        });
+        // Detect if we are running on Android TV
+        UiModeManager uiModeManager = (UiModeManager)getSystemService(UI_MODE_SERVICE);
+        boolean isTV;
+        if (uiModeManager.getCurrentModeType() == Configuration.UI_MODE_TYPE_TELEVISION)
+            isTV = true;
+        else
+            isTV = false;
+
+        // Allow the 'next' control at the bottom to advance to the next item.
+        // Hide this control completely if we are on a TV device
+        View nextButton = (View)findViewById(R.id.next_button);
+        if (isTV) {
+            Logging.debug ("Detected Android TV, so hiding some non-TV views");
+            nextButton.setVisibility(View.GONE);
+        } else {
+            Logging.debug("Detected regular Android device with touchscreen, enabling 'next' view");
+            nextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mMyOutputManager.nextView();
+                }
+            });
+        }
 
         // Permanently hide the action bar
         getActionBar().hide();
