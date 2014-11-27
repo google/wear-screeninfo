@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,6 +134,26 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
 
         // Permanently hide the action bar
         getActionBar().hide();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent ev) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_DPAD_CENTER:
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+            case KeyEvent.KEYCODE_DPAD_UP:
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+            case KeyEvent.KEYCODE_BUTTON_A:
+            case KeyEvent.KEYCODE_BUTTON_B:
+            case KeyEvent.KEYCODE_BUTTON_C:
+                Logging.debug("onKeyDown: going to next view from keyCode=" + keyCode);
+                mMyOutputManager.nextView();
+                return true; // We processed the event
+            default:
+                Logging.debug("onKeyDown: unknown keyCode=" + keyCode);
+                return false;
+        }
     }
 
     @Override
