@@ -54,7 +54,7 @@ public class MyOutputManager {
         Logging.debug ("Serial string is:\n" + mSerial);
 
         mAppInfo = ""
-                + "Pkg=" + BuildConfig.PACKAGE_NAME + "\n"
+                + "Pkg=" + BuildConfig.APPLICATION_ID + "\n"
                 + "Type=" + BuildConfig.BUILD_TYPE + "\n"
                 + "VName=" + BuildConfig.VERSION_NAME + "\n"
                 + "VCode=" + BuildConfig.VERSION_CODE + "\n"
