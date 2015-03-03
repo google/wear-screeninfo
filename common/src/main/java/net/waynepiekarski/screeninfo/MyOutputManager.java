@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
@@ -47,10 +48,13 @@ public class MyOutputManager {
                 + "Product=" + android.os.Build.PRODUCT;
         Logging.debug ("Device string is:\n" + mDevice);
 
+        // ANDROID_ID should be unique across all devices according to:
+        // http://android-developers.blogspot.co.uk/2011/03/identifying-app-installations.html
         mSerial = ""
                 + "Host=" + android.os.Build.HOST + "\n"
                 + "Radio=" + android.os.Build.getRadioVersion() + "\n"
-                + "Serial=" + android.os.Build.SERIAL;
+                + "Serial=" + android.os.Build.SERIAL + "\n"
+                + "AndroidId=" + Settings.Secure.getString(in.getContentResolver(), Settings.Secure.ANDROID_ID);
         Logging.debug ("Serial string is:\n" + mSerial);
 
         mAppInfo = ""
