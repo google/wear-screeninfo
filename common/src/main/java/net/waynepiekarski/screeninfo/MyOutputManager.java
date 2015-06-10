@@ -197,6 +197,7 @@ public class MyOutputManager {
             case DisplayMetrics.DENSITY_XXHIGH: return "xxhdpi";
             case DisplayMetrics.DENSITY_XXXHIGH: return "xxxhdpi";
             case DisplayMetrics.DENSITY_400: return "400";
+            case DisplayMetrics.DENSITY_560: return "560";
             default: return "unknown-" + metrics.densityDpi;
         }
     }
