@@ -38,7 +38,8 @@
                 android:height="1in"
                 android:textColor="#0000ff"
                 android:background="#80000080"
-                android:gravity="center_vertical|left"/>
+                android:gravity="center_vertical|left"
+                android:textSize="@dimen/text_size" />
 
             <TextView
                 android:id="@+id/box_20mm"
@@ -51,7 +52,8 @@
                 android:height="20mm"
                 android:textColor="#00ff00"
                 android:background="#80008000"
-                android:gravity="center_vertical|right"/>
+                android:gravity="center_vertical|right"
+                android:textSize="@dimen/text_size" />
 
             <TextView
                 android:id="@+id/box_100dp"
@@ -64,7 +66,8 @@
                 android:height="100dp"
                 android:textColor="#ff0000"
                 android:background="#80800000"
-                android:gravity="center_horizontal|bottom"/>
+                android:gravity="center_horizontal|bottom"
+                android:textSize="@dimen/text_size" />
 
         </RelativeLayout>
 
@@ -80,7 +83,8 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:text="@string/text_content"/>
+                android:text="@string/text_content"
+                android:textSize="@dimen/text_size" />
 
         </ScrollView>
 
