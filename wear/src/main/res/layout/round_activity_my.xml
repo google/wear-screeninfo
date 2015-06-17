@@ -70,6 +70,11 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent">
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_box="all">
+
         <!-- fillViewport is necessary so the TextView gets all click events. If you do
              not add this, then there is a region between TextView -> ScrollView where
              no events are captured. This is the only way I could get this to work -->
@@ -78,7 +83,7 @@
             android:layout_height="match_parent"
             android:fillViewport="true"
             android:fadeScrollbars="false"
-            app:layout_box="all">
+            >
 
             <TextView
                 android:id="@+id/text"
@@ -91,7 +96,10 @@
 
         </ScrollView>
 
-    </android.support.wearable.view.BoxInsetLayout>
+    </FrameLayout>
+
+
+</android.support.wearable.view.BoxInsetLayout>
 
     <!-- Must be the last view defined so it is on top of all the others -->
     <android.support.wearable.view.DismissOverlayView
