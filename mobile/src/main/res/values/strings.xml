@@ -2,7 +2,8 @@
 <resources>
 
     <string name="app_name">ScreenInfo</string>
-    <string name="next_button">Next</string>
+    <string name="next_button">Next Page</string>
+    <string name="wear_button">Start Wearable</string>
     <string name="text_content">Text view for updates</string>
 
 </resources>

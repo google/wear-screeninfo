@@ -15,6 +15,13 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
+
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -133,15 +140,49 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
         // Allow the 'next' control at the bottom to advance to the next item.
         // Hide this control completely if we are on a TV device
         View nextButton = (View)findViewById(R.id.next_button);
+        View wearButton = (View)findViewById(R.id.wear_button);
         if (isTV) {
             Logging.debug ("Detected Android TV, so hiding some non-TV views");
             nextButton.setVisibility(View.GONE);
+            wearButton.setVisibility(View.GONE);
         } else {
-            Logging.debug("Detected regular Android device with touchscreen, enabling 'next' view");
+            Logging.debug("Detected regular Android device with touchscreen, enabling 'next' and 'wear' view");
             nextButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mMyOutputManager.nextView();
+                }
+            });
+            wearButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // Must run this all on a background thread since it uses blocking calls for compactness
+                    Logging.debug("onClick for wearable start button");
+                    new Thread( new Runnable() {
+                        @Override
+                        public void run() {
+                            Logging.debug("Connecting to Google Play Services to use MessageApi");
+                            GoogleApiClient googleApiClient = new GoogleApiClient.Builder(FullscreenActivity.this).addApi(Wearable.API).build();
+                            ConnectionResult result = googleApiClient.blockingConnect();
+                            if (result.isSuccess()) {
+                                Logging.debug("Searching for list of wearable clients");
+                                NodeApi.GetConnectedNodesResult nodesResult =
+                                        Wearable.NodeApi.getConnectedNodes(googleApiClient).await();
+                                for (final Node node : nodesResult.getNodes()) {
+                                    Logging.debug("Launching wearable client " + node.getId() + " via message");
+                                    MessageApi.SendMessageResult sendResult =
+                                            Wearable.MessageApi.sendMessage(googleApiClient, node.getId(), "/start-on-wearable", new byte[0]).await();
+                                    if (sendResult.getStatus().isSuccess()) {
+                                        Logging.debug("Successfully sent to client " + node.getId());
+                                    } else {
+                                        Logging.debug("Failed to send to client " + node.getId() + " with error " + sendResult);
+                                    }
+                                }
+                            } else {
+                                Logging.debug("Failed to connect to Google Play Services: " + result);
+                            }
+                        }
+                    }).start();
                 }
             });
         }
