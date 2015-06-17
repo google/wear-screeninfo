@@ -109,7 +109,7 @@ public class MyOutputManager {
         int dpY = (int)(realHeight / metrics.scaledDensity);
 
         mDPI = "Display=" + realWidth + "x" + realHeight + " (pixels)\n"
-                + "density=" + metrics.density + " (x160=" + (int)(metrics.density * 160) + "dpi)\n"
+                + "density=" + metrics.density + " (x160=" + (int)(metrics.density * 160) + ")\n"
                 + "densityDpi=" + metrics.densityDpi + "(" + convertDpiToString(metrics) + ")\n"
                 + "scaledDensity=" + metrics.scaledDensity + "\n"
                 + "xdpi=" + metrics.xdpi + "\n"
@@ -198,7 +198,7 @@ public class MyOutputManager {
             case DisplayMetrics.DENSITY_XXXHIGH: return "xxxhdpi";
             case DisplayMetrics.DENSITY_400: return "400";
             case DisplayMetrics.DENSITY_560: return "560";
-            default: return "unknown-" + metrics.densityDpi;
+            default: return "unknown?";
         }
     }
 
