@@ -108,6 +108,8 @@ public class MyOutputManager {
         int dpX = (int)(realWidth / metrics.scaledDensity);
         int dpY = (int)(realHeight / metrics.scaledDensity);
 
+        String resourceDir = mActivity.getResources().getString(R.string.resource_dpi_string);
+
         mDPI = "Display=" + realWidth + "x" + realHeight + " (pixels)\n"
                 + "density=" + metrics.density + " (x160=" + (int)(metrics.density * 160) + ")\n"
                 + "densityDpi=" + metrics.densityDpi + "(" + convertDpiToString(metrics) + ")\n"
@@ -115,7 +117,8 @@ public class MyOutputManager {
                 + "xdpi=" + metrics.xdpi + "\n"
                 + "ydpi=" + metrics.ydpi + "\n"
                 + "inches=" + String.format("%.2f", inchX) + "\"x" + String.format("%.2f", inchY) + "\"" + "\n"
-                + "dp=" + dpX + "x" + dpY;
+                + "dp=" + dpX + "x" + dpY + "\n"
+                + "resource-dir=" + resourceDir;
         Logging.debug("DPI string is:\n" + mDPI);
 
         WifiManager wifiManager = (WifiManager)mActivity.getSystemService(Context.WIFI_SERVICE);
