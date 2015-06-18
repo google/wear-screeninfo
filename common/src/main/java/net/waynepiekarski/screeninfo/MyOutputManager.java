@@ -14,6 +14,14 @@ import android.view.WindowInsets;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
+
 import java.lang.reflect.Method;
 
 public class MyOutputManager {
@@ -149,6 +157,35 @@ public class MyOutputManager {
         Logging.debug("Address string is:\n" + mAddresses);
 
         refreshView();
+
+        // Use a background thread and make connection to Google Play Services to look up our node id
+        new Thread( new Runnable() {
+            @Override
+            public void run() {
+                Logging.debug("Connecting on background thread to Google Play Services to lookup local node id");
+                GoogleApiClient googleApiClient = new GoogleApiClient.Builder(mActivity).addApi(Wearable.API).build();
+                ConnectionResult result = googleApiClient.blockingConnect();
+                if (result.isSuccess()) {
+                    NodeApi.GetLocalNodeResult localNodeResult = Wearable.NodeApi.getLocalNode(googleApiClient).await();
+                    Node localNode = localNodeResult.getNode();
+                    final String localNodeString = localNode.getId();
+                    Logging.debug("Found local node id " + localNodeString + " - scheduling update on the UI thread");
+
+                    // Now we need to update the UI to reflect this updated value
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            String append = "LocalNodeId=" + localNodeString;
+                            mAddresses += "\n" + append;
+                            Logging.debug("Address string adjusted with LocalNodeId to:\n" + mAddresses);
+                            refreshView();
+                        }
+                    });
+                } else {
+                    Logging.debug("Failed to connect to Google Play Services: " + result);
+                }
+            }
+        }).start();
     }
 
     // Devices with no insets may or may not run our callback, so have a default ready here
