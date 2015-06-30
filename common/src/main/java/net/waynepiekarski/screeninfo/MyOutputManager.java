@@ -77,9 +77,13 @@ public class MyOutputManager {
         // http://android-developers.blogspot.co.uk/2011/03/identifying-app-installations.html
         mSerial = ""
                 + "Host=" + android.os.Build.HOST + "\n"
-                + "Radio=" + android.os.Build.getRadioVersion() + "\n"
                 + "Serial=" + android.os.Build.SERIAL + "\n"
-                + "AndroidId=" + Settings.Secure.getString(in.getContentResolver(), Settings.Secure.ANDROID_ID);
+                + "AndroidId=" + Settings.Secure.getString(in.getContentResolver(), Settings.Secure.ANDROID_ID) + "\n"
+                + "SDK_INT=" + Build.VERSION.SDK_INT + "\n";
+        if (Build.VERSION.SDK_INT >= 14)
+            mSerial = mSerial + "Radio=" + android.os.Build.getRadioVersion();
+        else
+            mSerial = mSerial + "Radio=(N/A < SDK 14)";
         Logging.debug ("Serial string is:\n" + mSerial);
 
         mAppInfo = ""
