@@ -33,14 +33,14 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.format.Time;
 import android.view.SurfaceHolder;
+import android.view.WindowInsets;
 
 import java.lang.ref.WeakReference;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Analog watch face with a ticking second hand. In ambient mode, the second hand isn't shown. On
- * devices with low-bit ambient mode, the hands are drawn without anti-aliasing in ambient mode.
+ * Analog watch face with a ticking second hand. In ambient mode, the second hand isn't shown.
  */
 public class MyWatchFace extends CanvasWatchFaceService {
     /**
@@ -83,6 +83,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
         final Handler mUpdateTimeHandler = new EngineHandler(this);
         boolean mRegisteredTimeZoneReceiver = false;
         Paint mBackgroundPaint;
+        Paint mTextPaint;
+        Paint mOverlayPaint;
         Paint mHandPaint;
         boolean mAmbient;
         Time mTime;
@@ -93,13 +95,14 @@ public class MyWatchFace extends CanvasWatchFaceService {
                 mTime.setToNow();
             }
         };
-        int mTapCount;
 
-        /**
-         * Whether the display supports fewer bits for each color in ambient mode. When true, we
-         * disable anti-aliasing in ambient mode.
-         */
+        // Store all the information we know about the display
         boolean mLowBitAmbient;
+        boolean mBurnInProtection;
+        WindowInsets mWindowInsets = null;
+        boolean mRound;
+        int mSurfaceWidth;
+        int mSurfaceHeight;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -109,21 +112,34 @@ public class MyWatchFace extends CanvasWatchFaceService {
                     .setCardPeekMode(WatchFaceStyle.PEEK_MODE_SHORT)
                     .setBackgroundVisibility(WatchFaceStyle.BACKGROUND_VISIBILITY_INTERRUPTIVE)
                     .setShowSystemUiTime(false)
-                    .setAcceptsTapEvents(true)
                     .build());
 
-            Resources resources = MyWatchFace.this.getResources();
-
             mBackgroundPaint = new Paint();
-            mBackgroundPaint.setColor(resources.getColor(R.color.background));
+            mBackgroundPaint.setColor(Color.BLACK);
 
             mHandPaint = new Paint();
-            mHandPaint.setColor(resources.getColor(R.color.analog_hands));
-            mHandPaint.setStrokeWidth(resources.getDimension(R.dimen.analog_hand_stroke));
-            mHandPaint.setAntiAlias(true);
+            mHandPaint.setColor(Color.LTGRAY);
+            mHandPaint.setStrokeWidth(getResources().getDimension(R.dimen.analog_hand_stroke));
             mHandPaint.setStrokeCap(Paint.Cap.ROUND);
 
+            mTextPaint = new Paint();
+            mTextPaint.setColor(Color.WHITE);
+            mTextPaint.setAntiAlias(true);
+            mTextPaint.setTextSize(getResources().getDimensionPixelSize(R.dimen.text_size));
+
+            mOverlayPaint = new Paint();
+            mOverlayPaint.setColor(Color.WHITE);
+            mOverlayPaint.setStyle(Paint.Style.STROKE);
+
             mTime = new Time();
+        }
+
+        @Override
+        public void onApplyWindowInsets(WindowInsets insets) {
+            super.onApplyWindowInsets(insets);
+            mRound = insets.isRound();
+            mWindowInsets = insets;
+            Logging.debug("onApplyWindowInsets(" + insets + ")");
         }
 
         @Override
@@ -136,6 +152,18 @@ public class MyWatchFace extends CanvasWatchFaceService {
         public void onPropertiesChanged(Bundle properties) {
             super.onPropertiesChanged(properties);
             mLowBitAmbient = properties.getBoolean(PROPERTY_LOW_BIT_AMBIENT, false);
+            mBurnInProtection = properties.getBoolean(PROPERTY_BURN_IN_PROTECTION, false);
+            Logging.debug("onPropertiesChanged(PROPERTY_LOW_BIT_AMBIENT)=" + mLowBitAmbient);
+            Logging.debug("onPropertiesChanged(PROPERTY_BURN_IN_PROTECTION)=" + mBurnInProtection);
+            recalculatePaint();
+        }
+
+        @Override
+        public void onSurfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            super.onSurfaceChanged(holder, format, width, height);
+            mSurfaceWidth = width;
+            mSurfaceHeight = height;
+            Logging.debug("onSurfaceChanged(width=" + width + ", height=" + height + ")");
         }
 
         @Override
@@ -144,44 +172,26 @@ public class MyWatchFace extends CanvasWatchFaceService {
             invalidate();
         }
 
+        private void recalculatePaint() {
+            if (isInAmbientMode() && !mLowBitAmbient && !mBurnInProtection) {
+                mOverlayPaint.setColor(Color.DKGRAY);
+            } else {
+                mOverlayPaint.setColor(Color.RED);
+            }
+            invalidate();
+        }
+
         @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
             if (mAmbient != inAmbientMode) {
                 mAmbient = inAmbientMode;
-                if (mLowBitAmbient) {
-                    mHandPaint.setAntiAlias(!inAmbientMode);
-                }
-                invalidate();
+                recalculatePaint();
             }
 
             // Whether the timer should be running depends on whether we're visible (as well as
             // whether we're in ambient mode), so we may need to start or stop the timer.
             updateTimer();
-        }
-
-        /**
-         * Captures tap event (and tap type) and toggles the background color if the user finishes
-         * a tap.
-         */
-        @Override
-        public void onTapCommand(int tapType, int x, int y, long eventTime) {
-            Resources resources = MyWatchFace.this.getResources();
-            switch (tapType) {
-                case TAP_TYPE_TOUCH:
-                    // The user has started touching the screen.
-                    break;
-                case TAP_TYPE_TOUCH_CANCEL:
-                    // The user has started a different gesture or otherwise cancelled the tap.
-                    break;
-                case TAP_TYPE_TAP:
-                    // The user has completed the tap gesture.
-                    mTapCount++;
-                    mBackgroundPaint.setColor(resources.getColor(mTapCount % 2 == 0 ?
-                            R.color.background : R.color.background2));
-                    break;
-            }
-            invalidate();
         }
 
         @Override
@@ -206,23 +216,77 @@ public class MyWatchFace extends CanvasWatchFaceService {
             float minRot = minutes / 30f * (float) Math.PI;
             float hrRot = ((mTime.hour + (minutes / 60f)) / 6f) * (float) Math.PI;
 
-            float secLength = centerX - 20;
-            float minLength = centerX - 40;
-            float hrLength = centerX - 80;
 
             if (!mAmbient) {
-                float secX = (float) Math.sin(secRot) * secLength;
-                float secY = (float) -Math.cos(secRot) * secLength;
-                canvas.drawLine(centerX, centerY, centerX + secX, centerY + secY, mHandPaint);
+                float secOuter = centerX - centerX*0.05f;
+                float secInner = centerX - centerX*0.1f;
+                float secXo = (float) Math.sin(secRot) * secOuter;
+                float secYo = (float) -Math.cos(secRot) * secOuter;
+                float secXi = (float) Math.sin(secRot) * secInner;
+                float secYi = (float) -Math.cos(secRot) * secInner;
+                canvas.drawLine(centerX + secXi, centerY + secYi, centerX + secXo, centerY + secYo, mHandPaint);
+            } else {
+                float minLength = centerX - centerX * 0.25f;
+                float hrLength = centerX - centerX * 0.5f;
+
+                float minX = (float) Math.sin(minRot) * minLength;
+                float minY = (float) -Math.cos(minRot) * minLength;
+                canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mHandPaint);
+
+                float hrX = (float) Math.sin(hrRot) * hrLength;
+                float hrY = (float) -Math.cos(hrRot) * hrLength;
+                canvas.drawLine(centerX, centerY, centerX + hrX, centerY + hrY, mHandPaint);
             }
 
-            float minX = (float) Math.sin(minRot) * minLength;
-            float minY = (float) -Math.cos(minRot) * minLength;
-            canvas.drawLine(centerX, centerY, centerX + minX, centerY + minY, mHandPaint);
+            // Draw a circle and crosses over the watch face so we can visualize the display shape
+            canvas.drawLine(0, 0, bounds.width(), bounds.height(), mOverlayPaint);
+            canvas.drawLine(0, bounds.height(), bounds.width(), 0, mOverlayPaint);
+            canvas.drawLine(0, bounds.height()/2, bounds.width(), bounds.height()/2, mOverlayPaint);
+            canvas.drawLine(bounds.width() / 2, 0, bounds.width() / 2, bounds.height(), mOverlayPaint);
+            if (mRound) {
+                // Use -2 pixels to make the circle visible on the display
+                canvas.drawCircle(bounds.width() / 2, bounds.height() / 2, bounds.width() / 2 - 2, mOverlayPaint);
+            } else {
+                // Draw a box outline for a rectangular display
+                canvas.drawLine(0, 0, bounds.width()-1, 0, mOverlayPaint);
+                canvas.drawLine(bounds.width()-1, 0, bounds.width()-1, bounds.height()-1, mOverlayPaint);
+                canvas.drawLine(bounds.width()-1, bounds.height()-1, 0, bounds.height()-1, mOverlayPaint);
+                canvas.drawLine(0, bounds.height()-1, 0, 0, mOverlayPaint);
+            }
 
-            float hrX = (float) Math.sin(hrRot) * hrLength;
-            float hrY = (float) -Math.cos(hrRot) * hrLength;
-            canvas.drawLine(centerX, centerY, centerX + hrX, centerY + hrY, mHandPaint);
+            // Draw debugging text over the top when in active mode. Start at the top-left of a round
+            // watch to ensure that it fits on all watch types easily.
+            if (!mAmbient) {
+                int rowHeight = (int) (mTextPaint.descent() - mTextPaint.ascent());
+                int textX = (int) (centerX * (1.0d - Math.sin(Math.toRadians(45.0d))));
+                int textY = (int) (centerY * (1.0d - Math.sin(Math.toRadians(45.0d)))) + rowHeight;
+
+                if (mWindowInsets == null) {
+                    canvas.drawText("shape=Square", textX, textY, mTextPaint);
+                    textY += rowHeight;
+                    canvas.drawText("insets=No insets received", textX, textY, mTextPaint);
+                } else {
+                    canvas.drawText("shape=" + (mWindowInsets.isRound() ? "Round" : "Square"), textX, textY, mTextPaint);
+                    textY += rowHeight;
+                    canvas.drawText("insets=L" + mWindowInsets.getSystemWindowInsetLeft() +
+                            ", R" + mWindowInsets.getSystemWindowInsetRight() + ", T" + mWindowInsets.getSystemWindowInsetTop() +
+                            ", B" + mWindowInsets.getSystemWindowInsetBottom(), textX, textY, mTextPaint);
+                }
+                textY += rowHeight;
+                canvas.drawText("bounds=" + bounds.width() + "," + bounds.height(), textX, textY, mTextPaint);
+                textY += rowHeight;
+                canvas.drawText("canvas=" + canvas.getWidth() + "," + canvas.getHeight(), textX, textY, mTextPaint);
+                textY += rowHeight;
+                canvas.drawText("surface=" + mSurfaceWidth + "," + mSurfaceHeight, textX, textY, mTextPaint);
+                textY += rowHeight;
+                canvas.drawText("low_bit_ambient=" + mLowBitAmbient, textX, textY, mTextPaint);
+                textY += rowHeight;
+                canvas.drawText("burn_in_protection=" + mBurnInProtection, textX, textY, mTextPaint);
+                textY += rowHeight;
+                canvas.drawText("model=" + android.os.Build.MODEL, textX, textY, mTextPaint);
+                textY += rowHeight;
+                canvas.drawText("device=" + android.os.Build.DEVICE, textX, textY, mTextPaint);
+            }
         }
 
         @Override
