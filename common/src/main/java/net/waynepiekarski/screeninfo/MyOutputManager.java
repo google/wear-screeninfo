@@ -143,8 +143,7 @@ public class MyOutputManager {
                 + "density=" + metrics.density + " (x160=" + (int)(metrics.density * 160) + ")\n"
                 + "densityDpi=" + metrics.densityDpi + "(" + convertDpiToString(metrics) + ")\n"
                 + "scaledDensity=" + metrics.scaledDensity + "\n"
-                + "xdpi=" + metrics.xdpi + "\n"
-                + "ydpi=" + metrics.ydpi + "\n"
+                + "xdpi=" + metrics.xdpi + " ydpi=" + metrics.ydpi + "\n"
                 + "inches=" + String.format("%.2f", inchX) + "\"x" + String.format("%.2f", inchY) + "\"" + "\n"
                 + "dp=" + dpX + "x" + dpY + "\n"
                 + "resource-dir=" + resourceDir;
