@@ -33,8 +33,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
@@ -210,6 +208,7 @@ public class MyOutputManager {
 
     // Devices with no insets may or may not run our callback, so have a default ready here
     private String mWindowInsets = "No WindowInsets Returned\nDevice is square with no insets";
+    private String mWindowInsetsFinal = mWindowInsets;
     private String mDPI = "n/a";
     private String mDevice = "n/a";
     private String mBuild = "n/a";
@@ -243,8 +242,25 @@ public class MyOutputManager {
                 + "Insets L" + windowInsets.getSystemWindowInsetLeft() +
                 ", R" + windowInsets.getSystemWindowInsetRight() + ", T" + windowInsets.getSystemWindowInsetTop() +
                 ", B" + windowInsets.getSystemWindowInsetBottom();
-        Logging.debug("Insets string is:\n" + mWindowInsets);
+        mWindowInsetsFinal = mWindowInsets;
+        Logging.debug("Insets string is:\n" + mWindowInsetsFinal);
         refreshView();
+    }
+
+    public void handleCanvasViewSizes (final int canvasWidth, final int canvasHeight, final int viewWidth, final int viewHeight) {
+        // Update the UI later on to show this updated value
+        mActivity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String append = "Canvas=" + canvasWidth + "x" + canvasHeight + "\n" +
+                                "View=" + viewWidth + "x" + viewHeight;
+                if ((canvasWidth != viewWidth) || (canvasHeight != viewHeight))
+                    append += "\nMismatched canvas and view!";
+                mWindowInsetsFinal = mWindowInsets + "\n" + append;
+                Logging.debug("Insets string adjusted with:\n" + append);
+                refreshView();
+            }
+        });
     }
 
     static String convertDpiToString (DisplayMetrics metrics) {
@@ -288,7 +304,7 @@ public class MyOutputManager {
 
         switch (mTextItem) {
             case 0: visibleFixedBox(false); mTextView.setText(mDPI); break;
-            case 1: mTextView.setText(mWindowInsets); break;
+            case 1: mTextView.setText(mWindowInsetsFinal); break;
             case 2: mTextView.setText(mAddresses); break;
             case 3: mTextView.setText(mDevice); break;
             case 4: mTextView.setText(mBuild); break;

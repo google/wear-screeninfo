@@ -26,14 +26,25 @@ import android.view.View;
 
 public class OverlayView extends View {
 
+    MyOutputManager mMyOutputManager;
     Paint mPaintLines;
+    Paint mPaintText;
     boolean mRound;
+    int mCanvasWidth = -1;
+    int mCanvasHeight = -1;
+    int mViewWidth = -1;
+    int mViewHeight = -1;
 
     public OverlayView (Context context, AttributeSet attrs) {
         super(context, attrs);
         mPaintLines = new Paint ();
         mPaintLines.setColor(Color.RED);
         mPaintLines.setStyle(Paint.Style.STROKE);
+
+        mPaintText = new Paint ();
+        mPaintText.setColor(Color.WHITE);
+        mPaintText.setAntiAlias(true);
+        mPaintText.setTextSize(getResources().getDimensionPixelSize(R.dimen.small_text_size));
     }
 
     public void setRound (boolean in) {
@@ -41,8 +52,24 @@ public class OverlayView extends View {
         invalidate();
     }
 
+    public void setMyOutputManager (MyOutputManager in) {
+        mMyOutputManager = in;
+    }
+
     @Override
     protected void onDraw (Canvas canvas) {
+        // Refresh the output manager with the current Canvas and View dimensions
+        if ((mCanvasWidth != canvas.getWidth())
+                || (mCanvasHeight != canvas.getHeight())
+                || (mViewWidth != this.getWidth())
+                || (mViewHeight != this.getHeight())) {
+            mCanvasWidth = canvas.getWidth();
+            mCanvasHeight = canvas.getHeight();
+            mViewWidth = this.getWidth();
+            mViewHeight = this.getHeight();
+            mMyOutputManager.handleCanvasViewSizes(canvas.getWidth(), canvas.getHeight(), this.getWidth(), this.getHeight());
+        }
+
         super.onDraw(canvas);
         canvas.drawColor(Color.DKGRAY);
         canvas.drawLine(0, 0, canvas.getWidth(), canvas.getHeight(), mPaintLines);
@@ -59,5 +86,15 @@ public class OverlayView extends View {
             canvas.drawLine(canvas.getWidth()-1, canvas.getHeight()-1, 0, canvas.getHeight()-1, mPaintLines);
             canvas.drawLine(0, canvas.getHeight()-1, 0, 0, mPaintLines);
         }
+
+        // Always print the View and Canvas (if it differs) dimensions at the top
+        int textHeight = (int)(mPaintText.descent() - mPaintText.ascent());
+        drawCenterText(canvas, getWidth() + "x" + getHeight(), textHeight, mPaintText);
+        if ((canvas.getWidth() != getWidth()) || (canvas.getHeight() != getHeight()))
+            drawCenterText(canvas, "Canvas=" + canvas.getWidth() + "x" + canvas.getHeight(), textHeight*2, mPaintText);
+    }
+
+    private void drawCenterText(Canvas c, String s, int y, Paint p) {
+        c.drawText(s, (c.getWidth() - p.measureText(s))/2, y, mPaintText);
     }
 }

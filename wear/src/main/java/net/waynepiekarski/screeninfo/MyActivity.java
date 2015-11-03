@@ -71,6 +71,8 @@ public class MyActivity extends Activity implements View.OnClickListener {
                     }
                 });
 
+                // Allow OverlayView to send the Canvas and View dimensions to MyOutputManager
+                mOverlayView.setMyOutputManager(mMyOutputManager);
             }
         });
 

@@ -81,6 +81,7 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
      */
     private TextView mTextView;
     MyOutputManager mMyOutputManager;
+    OverlayView mOverlayView;
 
 
     @Override
@@ -138,6 +139,7 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
         /* Implement the interface for my app here */
         mMyOutputManager = new MyOutputManager(this);
         mTextView = (TextView)findViewById(R.id.text);
+        mOverlayView = (OverlayView)findViewById(R.id.overlay);
         mMyOutputManager.setTextView(mTextView);
 
         // Recursive add a listener for every View in the hierarchy, this is the only way to get all clicks
@@ -203,6 +205,9 @@ public class FullscreenActivity extends Activity implements View.OnClickListener
                 }
             });
         }
+
+        // Allow OverlayView to send the Canvas and View dimensions to MyOutputManager
+        mOverlayView.setMyOutputManager(mMyOutputManager);
 
         // Permanently hide the action bar
         if (Build.VERSION.SDK_INT >= 11)
