@@ -136,6 +136,7 @@ public class MyOutputManager {
         int dpY = (int)(realHeight / metrics.scaledDensity);
 
         String resourceDir = mActivity.getResources().getString(R.string.resource_dpi_string);
+        String roundnessDir = mActivity.getResources().getString(R.string.resource_roundness_string);
 
         mDPI = "Display=" + realWidth + "x" + realHeight + " (pixels)\n"
                 + "density=" + metrics.density + " (x160=" + (int)(metrics.density * 160) + ")\n"
@@ -144,7 +145,8 @@ public class MyOutputManager {
                 + "xdpi=" + metrics.xdpi + " ydpi=" + metrics.ydpi + "\n"
                 + "inches=" + String.format("%.2f", inchX) + "\"x" + String.format("%.2f", inchY) + "\"" + "\n"
                 + "dp=" + dpX + "x" + dpY + "\n"
-                + "resource-dir=" + resourceDir;
+                + "dpi-res=" + resourceDir + "\n"
+                + "round-res=" + roundnessDir;
         Logging.debug("DPI string is:\n" + mDPI);
 
         WifiManager wifiManager = (WifiManager)mActivity.getSystemService(Context.WIFI_SERVICE);
@@ -209,7 +211,7 @@ public class MyOutputManager {
     }
 
     // Devices with no insets may or may not run our callback, so have a default ready here
-    private String mWindowInsets = "No WindowInsets Returned\nDevice is square with no insets";
+    private String mWindowInsets = "No WindowInsets Returned\nDevice is rectangular with no insets";
     private String mWindowInsetsFinal = mWindowInsets;
     private String mDPI = "n/a";
     private String mDevice = "n/a";

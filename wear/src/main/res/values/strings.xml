@@ -5,6 +5,7 @@
     <string name="hello_round">Hello Round World!</string>
     <string name="hello_square">Hello Square World!</string>
     <string name="resource_dpi_string">unknown?</string>
+    <string name="resource_roundness_string">unknown</string>
     <string name="my_analog_name">My Analog</string>
 
 </resources>
