@@ -160,7 +160,9 @@ public class MyOutputManager {
 
         // Reconstitute the pairing device name from the model and the last 4 digits of the bluetooth MAC
         String wearName;
-        if ((btAddress != null) && (!btAddress.equals("No Bluetooth"))) {
+        if ((btAddress != null) && (btAddress.equals("02:00:00:00:00:00"))) {
+            wearName = "No BT Access";
+        } else if ((btAddress != null) && (!btAddress.equals("No Bluetooth"))) {
             wearName = android.os.Build.MODEL;
             String[] tokens = btAddress.split(":");
             wearName += " " + tokens[4] + tokens[5];
