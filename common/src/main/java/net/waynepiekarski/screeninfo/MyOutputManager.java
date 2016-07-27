@@ -20,6 +20,7 @@ package net.waynepiekarski.screeninfo;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -32,6 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
@@ -179,9 +181,18 @@ public class MyOutputManager {
             wearName = "No Bluetooth";
         }
 
+        int gmsVer = -1;
+        try {
+            gmsVer = mActivity.getPackageManager().getPackageInfo(GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE, 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            Logging.debug("Could not find versionCode for package " + GoogleApiAvailability.GOOGLE_PLAY_SERVICES_PACKAGE);
+        }
+
         mAddresses = "Pair=" + wearName + "\n"
                 + "BT=" + btAddress + "\n"
-                + "WiFi=" + wifiAddress;
+                + "WiFi=" + wifiAddress + "\n"
+                + "GMSVer=" + gmsVer + "\n"
+                + "GMSClient=" + com.google.android.gms.common.GoogleApiAvailability.GOOGLE_PLAY_SERVICES_VERSION_CODE;
         Logging.debug("Address string is:\n" + mAddresses);
 
         refreshView();
@@ -193,25 +204,27 @@ public class MyOutputManager {
                 Logging.debug("Connecting on background thread to Google Play Services to lookup local node id");
                 GoogleApiClient googleApiClient = new GoogleApiClient.Builder(mActivity).addApi(Wearable.API).build();
                 ConnectionResult result = googleApiClient.blockingConnect();
+                final String append;
                 if (result.isSuccess()) {
                     NodeApi.GetLocalNodeResult localNodeResult = Wearable.NodeApi.getLocalNode(googleApiClient).await();
                     Node localNode = localNodeResult.getNode();
                     final String localNodeString = localNode.getId();
-                    Logging.debug("Found local node id " + localNodeString + " - scheduling update on the UI thread");
-
-                    // Now we need to update the UI to reflect this updated value
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            String append = "LocalNodeId=" + localNodeString;
-                            mAddresses += "\n" + append;
-                            Logging.debug("Address string adjusted with LocalNodeId to:\n" + mAddresses);
-                            refreshView();
-                        }
-                    });
+                    append = "GMSConnect=Ok\nLocalNodeId=" + localNodeString;
+                    Logging.debug("Found local node id " + localNodeString + ", scheduling update on the UI thread");
                 } else {
-                    Logging.debug("Failed to connect to Google Play Services: " + result);
+                    append = "GMSConnect=Failed\nLocalNodeId=Failed";
+                    Logging.debug("Failed to connect to Google Play Services, scheduling update on the UI thread: " + result);
                 }
+
+                // Now we need to update the UI to reflect this updated value
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mAddresses += "\n" + append;
+                        Logging.debug("Address string adjusted with GMSConnect/LocalNodeId to:\n" + mAddresses);
+                        refreshView();
+                    }
+                });
             }
         }).start();
     }
