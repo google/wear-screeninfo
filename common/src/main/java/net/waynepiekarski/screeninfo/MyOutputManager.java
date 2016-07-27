@@ -150,8 +150,14 @@ public class MyOutputManager {
         Logging.debug("DPI string is:\n" + mDPI);
 
         WifiManager wifiManager = (WifiManager)mActivity.getSystemService(Context.WIFI_SERVICE);
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
-        String wifiAddress = wifiInfo.getMacAddress();
+        WifiInfo wifiInfo;
+        String wifiAddress = null;
+        try {
+            wifiInfo = wifiManager.getConnectionInfo();
+            wifiAddress = wifiInfo.getMacAddress();
+        } catch (SecurityException e) {
+            Logging.debug("Received exception while retrieving WiFi information, ignoring");
+        }
         if (wifiAddress == null)
             wifiAddress = "No Wifi";
 

@@ -2,8 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.waynepiekarski.screeninfo" >
 
+    <!-- Access Bluetooth APIs, but do not require them on devices that do not support it -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
+
+    <!-- Access WiFi APIs, but do not require them on devices that do not support it -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-feature android:name="android.hardware.wifi" android:required="false" />
 
     <uses-feature android:name="android.hardware.gamepad"     android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
